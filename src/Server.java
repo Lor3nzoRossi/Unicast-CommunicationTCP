@@ -25,9 +25,9 @@ public class Server {
         Socket socket = null;
         try {
             this.serverSocket = new ServerSocket(this.porta);
-            System.out.println("1)Il server e' in ascolto.");
+            System.out.println("Il server e' in ascolto...");
             socket = this.serverSocket.accept(); //ottengo il socket ritornato da serverSocket.accept() 
-            System.out.println("2)Il client ha effettuato una richiesta, connessione avvenuta.");
+            System.out.println("Il client ha effettuato una richiesta, connessione avvenuta.");
         }catch(BindException e){
             System.err.println("Porta occupata.");
         }catch (IOException e) {

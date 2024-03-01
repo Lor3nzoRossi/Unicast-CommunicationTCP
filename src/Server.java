@@ -1,4 +1,6 @@
 
+import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -20,7 +22,18 @@ public class Server {
         this.porta = porta;
     }
     public Socket attendi(){
-        return null;
+        Socket socket = null;
+        try {
+            this.serverSocket = new ServerSocket(this.porta);
+            System.out.println("1)Il server e' in ascolto.");
+            socket = this.serverSocket.accept(); //ottengo il socket ritornato da serverSocket.accept() 
+            System.out.println("2)Il client ha effettuato una richiesta, connessione avvenuta.");
+        }catch(BindException e){
+            System.err.println("Porta occupata.");
+        }catch (IOException e) {
+            System.err.println("Errore durante l'ascolto del server");
+        }
+        return socket;
     }
     public void scrivi(){
         
@@ -32,6 +45,10 @@ public class Server {
         
     }
     public void termina(){
-        
+        try {
+            this.serverSocket.close();
+        } catch (IOException e) {
+            System.err.println("Errore nella chiusura della connessione.");
+        }
     }
 }

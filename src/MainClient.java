@@ -10,6 +10,6 @@
 public class MainClient {
     public static void main(String[] args) {
         Client client = new Client("user", "#fff");
-        client.connetti("MyServer", 4200);
+        client.connetti("localhost", 4200);
     }
 }

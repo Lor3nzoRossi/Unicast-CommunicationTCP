@@ -1,5 +1,12 @@
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.Socket;
 
 /*
@@ -15,6 +22,10 @@ public class Client {
     String nome;
     String colore;
     Socket socket;
+    //per scrivere
+    BufferedWriter bw;
+    //per leggere
+    BufferedReader br;
     
 
     public Client(String nomeDefault, String coloreDefault) {
@@ -25,6 +36,10 @@ public class Client {
         try {
             this.socket = new Socket(nomeServer, portaServer);
             System.out.println("Il client si è connesso al server " + nomeServer + " sulla porta " + portaServer);
+            //definisco i due stream per scrivere e leggere dal server
+            this.bw = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
+            this.br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            
         } catch (IOException e) {
             System.err.println("Errore durante la connessione al server " + nomeServer + " sulla porta " + portaServer + ": " + e.getMessage());
         }

@@ -55,7 +55,6 @@ public class Client {
                 Scanner scanner = new Scanner(System.in);
                 String input = "esci";
                 do {
-                    System.out.print(this.nome + ") ");
                     input = scanner.nextLine();
                     this.bw.write(this.nome + ") " + input);
                     this.bw.newLine();
@@ -74,6 +73,7 @@ public class Client {
                     String msg = this.br.readLine();
                     if(msg!=null){
                         System.out.println(msg);
+                        System.out.print(this.nome + ") ");
                     }
                 }
             } catch (IOException e) {

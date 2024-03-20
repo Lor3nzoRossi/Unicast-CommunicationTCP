@@ -1,4 +1,5 @@
 
+import com.sun.xml.internal.bind.v2.runtime.output.SAXOutput;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -42,24 +43,44 @@ public class Client {
             //definisco i due stream per scrivere e leggere dal server
             this.bw = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-            Scanner scanner = new Scanner(System.in);
-            String input = "esci";
-            do {
-                input = scanner.nextLine();
-                this.bw.write(input);
-                this.bw.newLine();
-                this.bw.flush();
-            } while (!input.equals("esci"));
-            chiudi();
+            leggi();
+            scrivi();
         } catch (IOException e) {
             System.err.println("Errore durante la connessione al server " + nomeServer + " sulla porta " + portaServer + ": " + e.getMessage());
         }
     }
     public void scrivi(){
-        
+        Thread scrittura = new Thread(() -> {
+            try {
+                Scanner scanner = new Scanner(System.in);
+                String input = "esci";
+                do {
+                    System.out.print(this.nome + ") ");
+                    input = scanner.nextLine();
+                    this.bw.write(this.nome + ") " + input);
+                    this.bw.newLine();
+                    this.bw.flush();
+                } while (!input.equals("esci"));
+            } catch (IOException e) {
+                System.out.println("Client: errore nella scrittura" + e);
+            }
+        });
+        scrittura.start();
     }
     public void leggi(){
-        
+        Thread lettura = new Thread(() -> {
+            try {
+                while(!this.socket.isClosed()){
+                    String msg = this.br.readLine();
+                    if(msg!=null){
+                        System.out.println(msg);
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("Client: errore nella lettura " + e);
+            }
+        });
+        lettura.start();
     }
     public void chiudi(){
         try {

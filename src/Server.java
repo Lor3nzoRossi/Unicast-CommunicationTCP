@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,23 +41,34 @@ public class Server {
             //definisco i due stream per comunicare con il Client
             this.bw = new BufferedWriter(new OutputStreamWriter(dataSocket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
-            //se tutto a buon fine inizia 
+            //scrivere al client
+            scrivi();
             //ascolto di nuove richieste:
             leggi();
-            //possibilità di scrittura al client
-            scrivi();
         }catch(BindException e){
             System.err.println("Porta occupata.");
         }catch (IOException e) {
-            System.err.println("Errore durante l'ascolto del server.");
+            System.err.println("Server: errore durante l'ascolto " + e);
         }
     }
     public void scrivi(){
-        try {
-            this.bw.write("Client, un saluto da Server!");
-        } catch (IOException e) {
-            e.getMessage();
-        }
+        Thread scrittura = new Thread(() -> {
+            try {
+                while (!this.serverSocket.isClosed() && !this.dataSocket.isClosed()) {                
+                    try {
+                        Scanner scanner = new Scanner(System.in);
+                        this.bw.write("server) " + scanner.nextLine());
+                        this.bw.newLine();
+                        this.bw.flush();
+                    } catch (IOException e) {
+                        e.getMessage();
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Server: errore nella scrittura " + e);
+            }
+        });
+        scrittura.start();
     }
     public void leggi(){
         Thread lettura = new Thread(() -> {
@@ -71,17 +83,13 @@ public class Server {
                     }
                 }
             } catch (IOException e) {
-                System.err.println("Errore nella lettura del messaggio: " + e);
+                System.err.println("Server: errore nella lettura del messaggio: " + e);
             }
         });
         lettura.start();
-        try {
-            lettura.join();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
-    public void chiudi(){
+    //chiude la connessione con il client
+    public void chiudi(){ 
         if(!dataSocket.isClosed()){
             try {
                 dataSocket.close();
@@ -91,11 +99,12 @@ public class Server {
         }
         termina();
     }
+    //termina completamente l'attività del server
     public void termina(){
         try {
             this.serverSocket.close();
         } catch (IOException e) {
-            System.err.println("Errore nella chiusura della connessione.");
+            System.err.println("Server: errore nella chiusura della connessione." + e);
         }
     }
 }

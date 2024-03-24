@@ -9,7 +9,7 @@
  */
 public class MainServer {
     public static void main(String[] args) {
-        Server server = new Server(4200);
+        Server server = new Server(4200, "\033[35m");
         server.attendi(); //metti il server in ascolto
     }
 }

@@ -24,31 +24,51 @@ public class Server {
     ServerSocket serverSocket;
     Socket dataSocket;
     int porta;
+    private String colore;
+    public static final String colorEND = "\033[0m";
     //per output
     BufferedWriter bw;
     //per input
     BufferedReader br;
     
-    public Server(int porta){
+    public Server(int porta, String colore){
         this.porta = porta;
+        this.colore = colore;
     }
     public void attendi(){
         try {
             this.serverSocket = new ServerSocket(this.porta);
-            System.out.println("Il server e' in ascolto...");
+            System.out.println(this.colore+"Il server e' in ascolto...");
             this.dataSocket = this.serverSocket.accept(); //ottengo il socket ritornato da serverSocket.accept() 
-            System.out.println("Richiesta del client accettata con successo, connessione avvenuta.");
+            System.out.println(this.colore+"Richiesta del client accettata con successo, connessione avvenuta.");
             //definisco i due stream per comunicare con il Client
             this.bw = new BufferedWriter(new OutputStreamWriter(dataSocket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
-            //scrivere al client
+            //visualizzare per la prima volta il menu
+            visualizzaMenu();
+            //per scrivere al client
             scrivi();
-            //ascolto di nuove richieste:
+            //per ascoltare nuove richieste:
             leggi();
         }catch(BindException e){
             System.err.println("Porta occupata.");
         }catch (IOException e) {
             System.err.println("Server: errore durante l'ascolto " + e);
+        }
+    }
+    public void visualizzaMenu(){
+        try {
+            String menu = this.colore + "Server) Digitare il tasto associato all'azione che si vuole compiere\n" +
+                        this.colore + "||MENU||\n" +
+                        this.colore + "1) risoluzione di un'operazione matematica\n" +
+                        this.colore + "2) barzelletta\n" +
+                        this.colore + "3) crediti\n" +
+                        this.colore + "Per terminare digitare 'esci'";
+            this.bw.write(menu);
+            this.bw.newLine();
+            this.bw.flush();
+        } catch (IOException e) {
+            System.err.println("Server: errore nella visualizzazione del menu " + e);
         }
     }
     public void scrivi(){
@@ -57,7 +77,8 @@ public class Server {
                 while (!this.serverSocket.isClosed() && !this.dataSocket.isClosed()) {                
                     try {
                         Scanner scanner = new Scanner(System.in);
-                        this.bw.write("server) " + scanner.nextLine());
+                        String msg = scanner.nextLine();
+                        this.bw.write(this.colore + "server) " + msg);
                         this.bw.newLine();
                         this.bw.flush();
                     } catch (IOException e) {
@@ -65,7 +86,7 @@ public class Server {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Server: errore nella scrittura " + e);
+                System.err.println("Server: errore nella scrittura " + e);
             }
         });
         scrittura.start();
@@ -76,14 +97,14 @@ public class Server {
                 while (!this.serverSocket.isClosed() && !this.dataSocket.isClosed()) {
                     String msg = br.readLine();
                     if(msg!=null){
-                        System.out.println(msg);
+                        System.out.println(msg + this.colore);
                     }else{
-                        System.out.println("La connessione è stata interrotta");
+                        System.err.println("La connessione è stata interrotta");
                         chiudi();
                     }
                 }
             } catch (IOException e) {
-                System.err.println("Server: errore nella lettura del messaggio: " + e);
+                System.err.println("Server: errore nella lettura: " + e);
             }
         });
         lettura.start();

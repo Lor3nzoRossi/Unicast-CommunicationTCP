@@ -23,8 +23,8 @@ import java.util.logging.Logger;
  * @author Studenti
  */
 public class Client {
-    String nome;
-    String colore;
+    private String nome;
+    private String colore;
     Socket socket;
     //per scrivere
     BufferedWriter bw;
@@ -36,19 +36,22 @@ public class Client {
         this.nome = nomeDefault;
         this.colore = coloreDefault;
     }
+    //metodo per connettersi ad un server
     public void connetti(String nomeServer, int portaServer) {
         try {
             this.socket = new Socket(nomeServer, portaServer);
-            System.out.println("Il client si è connesso al server " + nomeServer + " sulla porta " + portaServer);
+            System.out.println(this.colore+"Il client si è connesso al server " + nomeServer + " sulla porta " + portaServer);
             //definisco i due stream per scrivere e leggere dal server
             this.bw = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            //avvio i thread per la lettura e la scrittura
             leggi();
             scrivi();
         } catch (IOException e) {
             System.err.println("Errore durante la connessione al server " + nomeServer + " sulla porta " + portaServer + ": " + e.getMessage());
-        }
+        } 
     }
+    //metodo per scrivere
     public void scrivi(){
         Thread scrittura = new Thread(() -> {
             try {
@@ -56,32 +59,33 @@ public class Client {
                 String input = "esci";
                 do {
                     input = scanner.nextLine();
-                    this.bw.write(this.nome + ") " + input);
+                    this.bw.write(this.colore + this.nome + ") " + input);
                     this.bw.newLine();
                     this.bw.flush();
                 } while (!input.equals("esci"));
             } catch (IOException e) {
-                System.out.println("Client: errore nella scrittura" + e);
+                System.err.println("Client: errore nella scrittura" + e);
             }
         });
         scrittura.start();
     }
+    //metodo per leggere
     public void leggi(){
         Thread lettura = new Thread(() -> {
             try {
                 while(!this.socket.isClosed()){
                     String msg = this.br.readLine();
                     if(msg!=null){
-                        System.out.println(msg);
-                        System.out.print(this.nome + ") ");
+                        System.out.println(msg + this.colore);
                     }
                 }
             } catch (IOException e) {
-                System.out.println("Client: errore nella lettura " + e);
+                System.err.println("Client: errore nella lettura " + e);
             }
         });
         lettura.start();
     }
+    //metodo per chiudere la connessione
     public void chiudi(){
         try {
             socket.close();

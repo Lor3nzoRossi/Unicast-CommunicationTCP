@@ -56,13 +56,27 @@ public class Client {
         Thread scrittura = new Thread(() -> {
             try {
                 Scanner scanner = new Scanner(System.in);
-                String input = "esci";
+                String input;
                 do {
                     input = scanner.nextLine();
                     this.bw.write(this.colore + this.nome + ") " + input);
                     this.bw.newLine();
                     this.bw.flush();
-                } while (!input.equals("esci"));
+                    switch(input){
+                        case "1":
+                            Server.operazioneMatematica();
+                            break;
+                        case "2":
+                            Server.raccontaBarzelletta();
+                            break;
+                        case "3":
+                            Server.stampaCrediti();
+                            break;
+                    }
+                    System.out.println("Scegliere un'altra azione da compiere"
+                                        + "o premere 'exit' per uscire");
+                    
+                } while (!input.equalsIgnoreCase("exit"));
             } catch (IOException e) {
                 System.err.println("Client: errore nella scrittura" + e);
             }

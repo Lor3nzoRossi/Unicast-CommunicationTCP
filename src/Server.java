@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import java.util.ArrayList;
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -24,8 +24,8 @@ public class Server {
     ServerSocket serverSocket;
     Socket dataSocket;
     int porta;
-    private String colore;
-    public static final String colorEND = "\033[0m";
+    public static String colore;
+    public static String colorEND = "\033[0m";
     //per output
     BufferedWriter bw;
     //per input
@@ -63,7 +63,7 @@ public class Server {
                         this.colore + "1) risoluzione di un'operazione matematica\n" +
                         this.colore + "2) barzelletta\n" +
                         this.colore + "3) crediti\n" +
-                        this.colore + "Per terminare digitare 'esci'";
+                        this.colore + "Per terminare digitare 'exit'";
             this.bw.write(menu);
             this.bw.newLine();
             this.bw.flush();
@@ -71,7 +71,7 @@ public class Server {
             System.err.println("Server: errore nella visualizzazione del menu " + e);
         }
     }
-    public void scrivi(){
+    private void scrivi(){
         Thread scrittura = new Thread(() -> {
             try {
                 while (!this.serverSocket.isClosed() && !this.dataSocket.isClosed()) {                
@@ -109,8 +109,66 @@ public class Server {
         });
         lettura.start();
     }
+    //operazione matematica
+    public static void operazioneMatematica(){
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<Integer> nums = new ArrayList<>();
+        
+        System.out.println(Server.colore + "Che operazione vuoi eseguire? somma/sottrazione/moltiplicazione/divisione");
+        String operazione = scanner.nextLine();  
+        //input membri operazioni
+        String risposta;
+        System.out.println("Inserisci un numero: ");
+        nums.add(scanner.nextInt());
+        scanner.nextLine();
+        do{
+            System.out.println("Inserisci un numero: ");
+            nums.add(scanner.nextInt());
+            scanner.nextLine();
+            System.out.println("Vuoi inserire un altro numero? ");
+            risposta = scanner.nextLine();
+        }while(risposta.equalsIgnoreCase("si"));
+        
+        //calcolo
+        int risultato = 0;
+        switch(operazione){
+            case "somma":
+                for(int i=0;i<nums.size();i++){
+                    risultato+=nums.get(i);
+                }
+                break;
+            case "sottrazione":
+                risultato = nums.get(0);
+                for(int i=1;i<nums.size();i++){
+                    risultato -= nums.get(i);
+                }
+                break;
+            case "moltiplicazione":
+                risultato = 1;
+                for(int i=0;i<nums.size();i++){
+                    risultato*=nums.get(i);
+                }
+                break;
+            case "divisione":
+                risultato = nums.get(0);
+                for(int i=1;i<nums.size();i++){
+                    risultato/=nums.get(i);
+                }
+                break;
+        }
+        nums.clear();
+        System.out.println("risultato: " + risultato);
+    }
+    //barzelletta
+    public static void raccontaBarzelletta(){
+        System.out.println("Questa funzione deve essere ancora implementata.");
+    }
+    //visualizzazione crediti
+    public static void stampaCrediti(){
+        System.out.println("Questa funzione deve essere ancora implementata.");
+    }
     //chiude la connessione con il client
-    public void chiudi(){ 
+    private void chiudi(){ 
         if(!dataSocket.isClosed()){
             try {
                 dataSocket.close();
